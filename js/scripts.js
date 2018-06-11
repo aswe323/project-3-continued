@@ -29,6 +29,8 @@ const colorMenu = document.querySelector("#color"); // color menu otions
 const checkBoxes = document.querySelectorAll('.activities input');
 //activities form
 const checkBoxForm =document.querySelector('.activities');
+//labels of check boxes
+const checkBoxLabels = document.querySelectorAll(".activities label");
 /*-------------------------------------------------|
  *              event listeneers                   |
  *-------------------------------------------------|
@@ -47,24 +49,29 @@ var main = false;
 checkBoxForm.addEventListener('change', event =>	{
 	const tNineToTwelve = [checkBoxes[1] , checkBoxes[3]];//arrey of checkbox elements, Tusday nine am to 12pm
 	const tOneToFour = [checkBoxes[2] , checkBoxes[4]];//arrey of checkboxes elements, tusday one pm to four pm
+	//main is a toggle for main event selection. if its already selected. enable all else.
 	if (main){
 		for (let box=0;box<checkBoxes.length;box++){
 			checkBoxes[box].removeAttribute('disabled');
+			checkBoxLabels[box].style.background= "";
 		}
 		main = false;
 		return;
+	//if the target is the first checkbox, then disable all other checkboxes and set main to true
 	}if (event.target === checkBoxes[0] && main===false){
 		main = true;
 		for (let box=0;box<checkBoxes.length;box++){
 			checkBoxes[box].checked = false;
 			checkBoxes[box].setAttribute('disabled','true')
+			checkBoxLabels[box].style.background= "grey";
 		};
 		event.target.removeAttribute('disabled');	
 		event.target.checked = true;
+		event.target.parentNode.style.background = '';	
 	}	
 	disableOther(event.target, tNineToTwelve);	
 	disableOther(event.target, tOneToFour);
-	//use a reduce function to check if the element value is true if true and pos 0 then add 200, else if true add 100, else, nothing;
+	//use a reduce function to check if the element is checked if true and pos 0 then add 200, else if true add 100, else, nothing;
 
 	let totalCost = Array.from(checkBoxes).reduce((costSum, box)=>{
 		if (box.checked && box == checkBoxes[0]){
@@ -115,12 +122,14 @@ function disableOther (checkbox, arrey){
 	if (arrey[1].hasAttribute('disabled', 'true')|| arrey[0].hasAttribute('disabled', 'true')){
 		arrey.splice(arrey.indexOf(checkbox),1);
 		arrey[0].removeAttribute('disabled');
+		arrey[0].parentNode.style.background = '';
 		return;
 	//otherwise if the arrey has the target element, disable the outer element in the arrey
 	}else if (arrey.includes(checkbox)){
 		arrey.splice(arrey.indexOf(checkbox),1);
 		arrey[0].checked = false;
 		arrey[0].setAttribute('disabled', 'true');
+		arrey[0].parentNode.style.background = 'grey';
 		return;
 	}	
 }

@@ -29,6 +29,8 @@ const colorMenu = document.querySelector("#color"); // color menu otions
 const checkBoxes = document.querySelectorAll('.activities input');
 //activities form
 const checkBoxForm =document.querySelector('.activities');
+//labels of check boxes
+const checkBoxLabels = document.querySelectorAll(".activities label");
 /*-------------------------------------------------|
  *              event listeneers                   |
  *-------------------------------------------------|
@@ -50,6 +52,7 @@ checkBoxForm.addEventListener('change', event =>	{
 	if (main){
 		for (let box=0;box<checkBoxes.length;box++){
 			checkBoxes[box].removeAttribute('disabled');
+			checkBoxLabels[box].style.background= "";
 		}
 		main = false;
 		return;
@@ -58,9 +61,11 @@ checkBoxForm.addEventListener('change', event =>	{
 		for (let box=0;box<checkBoxes.length;box++){
 			checkBoxes[box].checked = false;
 			checkBoxes[box].setAttribute('disabled','true')
+			checkBoxLabels[box].style.background= "grey";
 		};
 		event.target.removeAttribute('disabled');	
 		event.target.checked = true;
+		event.target.parentNode.style.background = '';	
 	}	
 	disableOther(event.target, tNineToTwelve);	
 	disableOther(event.target, tOneToFour);
@@ -74,7 +79,7 @@ checkBoxForm.addEventListener('change', event =>	{
 		}		
 		return costSum;
 	}, 0)
-	checkBoxForm.querySelector('p');	
+	checkBoxForm.querySelector('p').innerHTML = totalCost;	
 	//WARNING: check specific wanted behavior in the site (disable checkboxes or change with out disableing)
 	//
 }
@@ -115,12 +120,14 @@ function disableOther (checkbox, arrey){
 	if (arrey[1].hasAttribute('disabled', 'true')|| arrey[0].hasAttribute('disabled', 'true')){
 		arrey.splice(arrey.indexOf(checkbox),1);
 		arrey[0].removeAttribute('disabled');
+		arrey[0].parentNode.style.background = '';
 		return;
 	//otherwise if the arrey has the target element, disable the outer element in the arrey
 	}else if (arrey.includes(checkbox)){
 		arrey.splice(arrey.indexOf(checkbox),1);
 		arrey[0].checked = false;
 		arrey[0].setAttribute('disabled', 'true');
+		arrey[0].parentNode.style.background = 'grey';
 		return;
 	}	
 }
