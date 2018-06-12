@@ -12,11 +12,23 @@
  *	complete:for the activities, disable activities that overlap with the users choices.
  *		*make sure they undisabled when the user regrets his decision :P
  *		*make a total cost field in the buttom
- *--->	TODO:make sure to update the lists when  all the current todo's are done :3
  *
- * 	TODO:hide the color menu when the desgin isnt selected yet.
- * 	TODO:hide payment options that arent selected, and disable he 'select payment option' pre selection text.
- *	KNOWN BUGS:
+ *	completed:hide the color menu when the desgin isnt selected yet.
+ * 	completed:hide payment options that arent selected, and disable he 'select payment option' pre selection text.
+ * 	TODO: form falidation
+ * 		1.name field value cant be blank
+ * 		2.check for valid email format in email field. (regex? specific strings?)
+ * 		3.check for checked boxes in the checkboxes arrey, if one is selected return false.
+ * 		4.for payment options
+ * 			*credit card return true if between 13 to 16 value long.
+ * 			*zip code true if 5 value long
+ * 			*cvv true if 3 digit long
+ * 	
+ *		for each false value, attach a dedicated message, and display it above the corresponding element.
+ *
+ *
+ *	TODO:make sure to update the lists when  all the current todo's are done 
+ * 	KNOWN BUGS:
  *		
  *	TO REFACTOR:
  *		TODO:refactor the disableOther function to be more concise. (high order function?)
@@ -89,6 +101,7 @@ paymentOptions.addEventListener('change', event =>{
 })
 
 designMenu.addEventListener('change', event =>{  //desgin event listener, updates the color menu on change,
+	if (designMenu.value == "Select Theme"){return hideElement(colorMenu)}else{showElement(colorMenu)};
 	hideColors();
 	colorMenu.value = "";
 	if (event.target.value === 'js puns'){
@@ -138,6 +151,7 @@ function disableOther (checkbox, arrey){
 
 //on start settings for pamet options
 function paymentSettings (){
+	paymentOptionsSelectables[0].remove();
 	paymentOptions.value ="credit card";
 	//hide all divs then show creditcard div
 	paymentDivs.forEach((x)=>hideElement(x));
@@ -176,7 +190,7 @@ function onLoad(){
 	textAreaHide();
 	hideColors();
 	paymentSettings();
-	colorMenu.value = "";//on load make the color menu selected option to empty,
+	hideElement(colorMenu);
 	totalCostElement();
 }
 onLoad();
