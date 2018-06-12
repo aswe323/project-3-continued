@@ -15,7 +15,7 @@
  *
  *	completed:hide the color menu when the desgin isnt selected yet.
  * 	completed:hide payment options that arent selected, and disable he 'select payment option' pre selection text.
- * 	TODO: form falidation
+ *---> 	TODO: form falidation
  * 		1.name field value cant be blank
  * 		2.check for valid email format in email field. (regex? specific strings?)
  * 		3.check for checked boxes in the checkboxes arrey, if one is selected return false.
@@ -25,7 +25,10 @@
  * 			*cvv true if 3 digit long
  * 	
  *		for each false value, attach a dedicated message, and display it above the corresponding element.
- *
+ *		HOWTO: add a global event handeler, that triggeres with every change to the html. 
+ *			make short if statements for each check that evaluate to true or false. 
+ *			make a function that will add or remove warning messages above the appropriate element.
+ *				and disable the submit button.
  *
  *	TODO:make sure to update the lists when  all the current todo's are done 
  * 	KNOWN BUGS:
@@ -52,12 +55,61 @@ const paymentOptionsSelectables = paymentOptions.querySelectorAll('option');
 //acess to payment divs
 const creditCardDiv = document.querySelector('.credit-card');//credit card div
 const paymentDivs= paymentOptions.parentNode.querySelectorAll('fieldset>div');//all divs in the payment fieldset
+//acces to submit element
+const submitButton = document.querySelector('button');
 /*-------------------------------------------------|
  *              event listeneers                   |
  *-------------------------------------------------|
  */
+// a not-so-dry solution but i really didnt want to start makig reduce and append elements. so yea :P
+document.getElementsByTagName('body')[0].addEventListener('focusin', event =>{// body event handeler for general validation
+	console.log('i am working');
+	let enableSubmit = false;
+	let elementToCheck = null
+	console.log('happened');
+	elementToCheck = firstInput;
 
-titleSelect.addEventListener('change', event => {  //if other is selected then display a textarea if its not selected then  hide it
+	if (elementToCheck.value !== "" && elementToCheck.value !== null && isNaN(elementToCheck.value)){
+		console.log('a name was given');
+	}else{
+		elementToCheck.placeholder = 'REQUIRED:name cant be blank or a number'
+	};
+	elementToCheck=document.querySelector('#mail');
+	if  (elementToCheck.value.includes('@') && elementToCheck.value.endsWith('.com')){
+		console.log('a valid email was given');
+	}else{
+		elementToCheck.placeholder = 'REQUIRED: a valid email address';
+		elementToCheck.value = "";
+	};
+	elementToCheck=document.querySelector('.activities p');
+	if (elementToCheck.innerHTML!=='0' && elementToCheck.innerHTML!==""){
+		console.log('total cost is: ' + elementToCheck.innerHTML);
+	}else{
+		elementToCheck.innerHTML='please select an activitie';
+	}
+	if (paymentOptions.value =="credit card"){
+		elementToCheck=document.querySelector('#cc-num');
+		if (elementToCheck.value.length > 16 || elementToCheck.value.length < 13 || isNaN(elementToCheck.value)){
+			elementToCheck.placeholder ="this is not a valid credit card number";
+			elementToCheck.value = "";
+		}
+		elementToCheck=document.querySelector('#zip');
+		if (elementToCheck.value.length !== 5||isNaN(elementToCheck.value)){
+			elementToCheck.placeholder="must be 5 numbers";
+			elementToCheck.value="";
+		}
+		elementToCheck=document.querySelector('#cvv');
+		if (elementToCheck.value.length !== 3 || isNaN(elementToCheck.value)){
+			elementToCheck.placeholder="3 numebrs";
+			elementToCheck.value="";
+		}
+
+	}
+	isValid(enableSubmit);
+	
+});
+
+titleSelect.addEventListener('', event => {  //if other is selected then display a textarea if its not selected then  hide it
 		if (event.target.value === "other"){
 			textArea.style.display="";
 		}else{
@@ -120,6 +172,16 @@ designMenu.addEventListener('change', event =>{  //desgin event listener, update
  *              function that are used             |
  *-------------------------------------------------|
  */
+//takes a true or false value, if true enable submit button if not do nothing
+function isValid (bool){
+	if (bool) { 
+		submitButton.removeAttribute('disabled' , 'true');
+		submitButton.style.color = "";
+	}else{
+		disableSubmit();
+	}
+
+}
 
 //cost of activities
 function totalCostElement(){
@@ -184,6 +246,12 @@ function textAreaHide(){
 	textArea.style.display="none";
 }
 
+//fucntion that disables the submit buttona nd set its color to grey
+function disableSubmit (){
+	submitButton.setAttribute('disabled', 'true');
+	submitButton.style.color = "grey";
+}
+
 //wha will happen when the js is loaded
 function onLoad(){
 	setFocus();
@@ -192,7 +260,9 @@ function onLoad(){
 	paymentSettings();
 	hideElement(colorMenu);
 	totalCostElement();
+	disableSubmit();
 }
 onLoad();
+
 
 
