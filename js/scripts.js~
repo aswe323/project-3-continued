@@ -9,14 +9,17 @@
  *
  *	conpleted:If the user selects "Theme - I <3 JS" then the color menu should only display "Tomato," "Steel Blue," and "Dim Grey."
  *
- *--->	TODO:for the activities, disable activities that overlap with the users choices.
+ *	complete:for the activities, disable activities that overlap with the users choices.
  *		*make sure they undisabled when the user regrets his decision :P
  *		*make a total cost field in the buttom
- *	TODO:make sure to update the lists when  all the current todo's are done :3
+ *--->	TODO:make sure to update the lists when  all the current todo's are done :3
  *
+ * 	TODO:hide the color menu when the desgin isnt selected yet.
+ * 	TODO:hide payment options that arent selected, and disable he 'select payment option' pre selection text.
  *	KNOWN BUGS:
+ *		
  *	TO REFACTOR:
- *
+ *		TODO:refactor the disableOther function to be more concise. (high order function?)
  * */
 //accessing neccesery elements
 const firstInput = document.querySelector('input');//first input element
@@ -24,19 +27,25 @@ const titleSelect = document.getElementById('title');//job rule menu
 const textArea = document.querySelector("#other-title");//text area below job rule menu
 //design menu acceses
 const designMenu = document.querySelector("#design");// design style menu
-const colorMenu = document.querySelector("#color"); // color menu otions
+const colorMenu = document.querySelector("#color"); // color menu 
 // checkboxes in the activities form
 const checkBoxes = document.querySelectorAll('.activities input');
 //activities form
 const checkBoxForm =document.querySelector('.activities');
 //labels of check boxes
 const checkBoxLabels = document.querySelectorAll(".activities label");
+//acces to the payment options menu
+const paymentOptions = document.querySelector("#payment");
+const paymentOptionsSelectables = paymentOptions.querySelectorAll('option');
+//acess to payment divs
+const creditCardDiv = document.querySelector('.credit-card');//credit card div
+const paymentDivs= paymentOptions.parentNode.querySelectorAll('fieldset>div');//all divs in the payment fieldset
 /*-------------------------------------------------|
  *              event listeneers                   |
  *-------------------------------------------------|
  */
-//if other is selected, then display a textarea. if its not selected, then  hide it.
-titleSelect.addEventListener('change', event => {
+
+titleSelect.addEventListener('change', event => {  //if other is selected then display a textarea if its not selected then  hide it
 		if (event.target.value === "other"){
 			textArea.style.display="";
 		}else{
@@ -44,33 +53,14 @@ titleSelect.addEventListener('change', event => {
 		}
 	}
 )
-//event listener for specific button groups
+
 var main = false;
-checkBoxForm.addEventListener('change', event =>	{
+checkBoxForm.addEventListener('change', event =>{  //event listener for specific button groups
 	const tNineToTwelve = [checkBoxes[1] , checkBoxes[3]];//arrey of checkbox elements, Tusday nine am to 12pm
 	const tOneToFour = [checkBoxes[2] , checkBoxes[4]];//arrey of checkboxes elements, tusday one pm to four pm
-	if (main){
-		for (let box=0;box<checkBoxes.length;box++){
-			checkBoxes[box].removeAttribute('disabled');
-			checkBoxLabels[box].style.background= "";
-		}
-		main = false;
-		return;
-	}if (event.target === checkBoxes[0] && main===false){
-		main = true;
-		for (let box=0;box<checkBoxes.length;box++){
-			checkBoxes[box].checked = false;
-			checkBoxes[box].setAttribute('disabled','true')
-			checkBoxLabels[box].style.background= "grey";
-		};
-		event.target.removeAttribute('disabled');	
-		event.target.checked = true;
-		event.target.parentNode.style.background = '';	
-	}	
 	disableOther(event.target, tNineToTwelve);	
 	disableOther(event.target, tOneToFour);
-	//use a reduce function to check if the element value is true if true and pos 0 then add 200, else if true add 100, else, nothing;
-
+	//use a reduce function to check if the element is checked if true and pos 0 then add 200, else if true add 100, else, nothing;
 	let totalCost = Array.from(checkBoxes).reduce((costSum, box)=>{
 		if (box.checked && box == checkBoxes[0]){
 			costSum  = costSum + 200;
@@ -79,13 +69,26 @@ checkBoxForm.addEventListener('change', event =>	{
 		}		
 		return costSum;
 	}, 0)
+	//adding total cost to the inner html of the p element under the checkboxes
 	checkBoxForm.querySelector('p').innerHTML = totalCost;	
 	//WARNING: check specific wanted behavior in the site (disable checkboxes or change with out disableing)
 	//
 }
 )
-//desgin event listener, updates the color menu on change,
-designMenu.addEventListener('change', event =>{
+
+//event listener for the select menu in the payment option
+paymentOptions.addEventListener('change', event =>{
+	let indexValue=0;
+	let selected = paymentOptionsSelectables.forEach((x,index)=>{
+		if(x.value == event.target.value){indexValue = index};
+	});
+	if (indexValue === 0){return}else{};
+	paymentDivs.forEach(x=>hideElement(x));
+	paymentDivs.item(indexValue).style.display = '';
+	//show the selected div
+})
+
+designMenu.addEventListener('change', event =>{  //desgin event listener, updates the color menu on change,
 	hideColors();
 	colorMenu.value = "";
 	if (event.target.value === 'js puns'){
@@ -104,6 +107,7 @@ designMenu.addEventListener('change', event =>{
  *              function that are used             |
  *-------------------------------------------------|
  */
+
 //cost of activities
 function totalCostElement(){
 //create a p element and add it to the end of the activities field
@@ -132,12 +136,28 @@ function disableOther (checkbox, arrey){
 	}	
 }
 
+//on start settings for pamet options
+function paymentSettings (){
+	paymentOptions.value ="credit card";
+	//hide all divs then show creditcard div
+	paymentDivs.forEach((x)=>hideElement(x));
+	showElement(creditCardDiv);
+}
+
+
+//hiding a given element.
+function hideElement(element){
+	return element.style.display ="none";
+}
+
+//showing the given element 
+function showElement(element){
+	return element.style.display="";
+}
 
 //undisplaying the options in the color menu
 function hideColors(){
-	for (let opt=0;opt<colorMenu.length;opt++){
-	colorMenu.children[opt].style.display="none";
-	}
+	colorMenu.querySelectorAll('option').forEach((color)=>hideElement(color)); 
 }
 
 //on page load (when the js is loaded i gues?) make the first textfield focus
@@ -155,8 +175,10 @@ function onLoad(){
 	setFocus();
 	textAreaHide();
 	hideColors();
+	paymentSettings();
 	colorMenu.value = "";//on load make the color menu selected option to empty,
 	totalCostElement();
 }
 onLoad();
+
 
